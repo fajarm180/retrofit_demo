@@ -25,7 +25,7 @@ abstract class ApiService {
       d.interceptors.add(PrettyDioLogger(
         requestHeader: true,
         requestBody: true,
-        responseBody: true,
+        responseBody: false,
       ));
     }
 

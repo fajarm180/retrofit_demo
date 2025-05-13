@@ -124,7 +124,8 @@ class _ApiService implements ApiService {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    final _data = product;
+    final _data = <String, dynamic>{};
+    _data.addAll(await compute(serializeProduct, product));
     final _options = _setStreamType<Product>(
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
@@ -154,7 +155,8 @@ class _ApiService implements ApiService {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
-    final _data = product;
+    final _data = <String, dynamic>{};
+    _data.addAll(await compute(serializeProduct, product));
     final _options = _setStreamType<Product>(
       Options(method: 'PUT', headers: _headers, extra: _extra)
           .compose(
