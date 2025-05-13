@@ -5,7 +5,14 @@ export 'item.c.dart';
 
 part 'item.g.dart';
 
-Object? _itemMapper<T>(json, field) => (json as JSON)['${T.toString()}s'];
+Object? _itemMapper(json, field) {
+  final keys = [
+    'products',
+  ];
+
+  final key = keys.firstWhere((e) => json.containsKey(e), orElse: () => '');
+  return key.isNotEmpty ? json[key] : [];
+}
 
 @JsonSerializable(
   createToJson: false,
