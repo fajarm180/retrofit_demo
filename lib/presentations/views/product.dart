@@ -4,6 +4,7 @@ import 'package:retrofit_demo/data/dto/product.dart';
 import 'package:retrofit_demo/data/repository/product.dart';
 import 'package:retrofit_demo/presentations/components/dialogs/delete_dialog.dart';
 import 'package:retrofit_demo/presentations/components/layout/list_view.dart';
+import 'package:retrofit_demo/presentations/components/search_bar.dart';
 
 class ProductsPage extends StatelessWidget {
   const ProductsPage({super.key});
@@ -18,46 +19,8 @@ class ProductsPage extends StatelessWidget {
           title: const Text('List Product'),
         ),
         body: ProductListView(),
-        // body: BlocConsumer<ProductBloc, ProductState>(
-        //   listener: (context, state) => switch (state) {
-        //     ProductStateComplete _ => Future.delayed(
-        //         const Duration(seconds: 1),
-        //         () {
-        //           try {
-        //             refreshController.requestRefresh();
-        //           } catch (e) {
-        //             context.read<ProductBloc>().add(ProductEventRefreshList());
-        //           }
-        //         },
-        //       ),
-        //     ProductListComplete _ => refreshController.twoLevelComplete(),
-        //     ProductStateError _ => () {
-        //         refreshController.loadFailed();
-        //         refreshController.refreshFailed();
-        //       },
-        //     _ => null,
-        //   },
-        //   builder: (context, state) => Column(
-        //     children: [
-        //       Padding(
-        //         padding: const EdgeInsets.all(12.0),
-        //         child: XSearchBar(
-        //             // onSearch: (v) => context
-        //             //     .read<ProductBloc>()
-        //             //     .add(ProductEventFilterList(search: v)),
-        //             ),
-        //       ),
-        //       Expanded(
-        //         child: ProductListView(),
-        //       ),
-        //     ],
-        //   ),
-        // ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            // context.goNamed(Routes.addProduct);
-          },
-          // onPressed: () => context.goNamed(Routes.addProduct),
+          onPressed: () => Navigator.pushNamed(context, 'product_form'),
           tooltip: 'Add Product',
           child: const Icon(Icons.add),
         ),
@@ -75,41 +38,78 @@ class ProductListView extends StatefulWidget {
 
 class _ProductListViewState extends State<ProductListView> {
   final refreshController = RefreshController(initialRefresh: true);
+  final sc = TextEditingController();
   List<Product> items = [];
   final length = 10;
   int page = 1;
 
   @override
   Widget build(BuildContext context) {
-    return XListView(
-      refreshController: refreshController,
-      onRefresh: onRefresh,
-      onLoading: onLoading,
-      itemsCount: items.length,
-      itemBuilder: (context, i) => Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: ProductListTile(item: items[i]),
-      ),
+    return Column(
+      children: [
+        Container(
+          color: Colors.white,
+          padding: const EdgeInsets.all(12.0),
+          child: XSearchBar(
+            controller: sc,
+            onSearch: (v) => onRefresh(),
+          ),
+        ),
+        Expanded(
+          child: XListView(
+            refreshController: refreshController,
+            onRefresh: () {
+              sc.clear();
+              onRefresh();
+            },
+            onLoading: onLoading,
+            itemsCount: items.length,
+            itemBuilder: (context, i) => Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ProductListTile(item: items[i]),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
   void onRefresh() async {
-    final result = await ProductRepo().getProducts();
+    try {
+      final result = await ProductRepo().getProducts(query: sc.text);
 
-    setState(() {
-      items.clear();
-      items = result;
-      page = 1;
-    });
+      setState(() {
+        items.clear();
+        items = result;
+        page = 1;
+      });
 
-    refreshController.refreshCompleted();
+      refreshController.refreshCompleted();
+    } catch (e) {
+      refreshController.refreshFailed();
+    }
   }
 
   void onLoading() async {
-    final result = await ProductRepo().getProducts(page: page + 1);
+    try {
+      final result = await ProductRepo().getProducts(
+        query: sc.text,
+        page: page + 1,
+      );
 
-    items = items + result;
-    refreshController.loadComplete();
+      setState(() {
+        items.addAll(result);
+        page++;
+      });
+
+      if (result.isEmpty) {
+        refreshController.loadNoData();
+      } else {
+        refreshController.loadComplete();
+      }
+    } catch (e) {
+      refreshController.loadFailed();
+    }
   }
 }
 
@@ -123,7 +123,7 @@ class ProductListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final bloc = context.read<ProductBloc>();
+    final sm = ScaffoldMessenger.of(context);
 
     return ListTile(
       shape: RoundedRectangleBorder(
@@ -131,11 +131,7 @@ class ProductListTile extends StatelessWidget {
         side:
             BorderSide(color: Theme.of(context).colorScheme.onPrimaryContainer),
       ),
-      // onTap: () => context.goNamed(
-      //   Routes.detailProduct,
-      //   pathParameters: {'productId': item.id ?? ''},
-      //   extra: item,
-      // ),
+      onTap: () => goToForm(context),
       leading: Image.network(
         height: 50,
         width: 50,
@@ -154,12 +150,7 @@ class ProductListTile extends StatelessWidget {
             style: IconButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.inversePrimary,
             ),
-            onPressed: () {},
-            // onPressed: () => context.goNamed(
-            //   Routes.detailProduct,
-            //   pathParameters: {'productId': item.id ?? ''},
-            //   extra: item,
-            // ),
+            onPressed: () => goToForm(context),
             icon: const Icon(Icons.edit),
           ),
           const Gap(5),
@@ -170,13 +161,27 @@ class ProductListTile extends StatelessWidget {
             onPressed: () => showDialog<bool>(
               context: context,
               builder: (context) => const DeleteDialog(),
-            )
-            // .then(
-            //   (value) => (value ?? false)
-            //       ? bloc.add(ProductEventDeleteProduct(item.id ?? ''))
-            //       : null,
-            // )
-            ,
+            ).then(
+              (value) {
+                if (!(value ?? false)) return;
+
+                try {
+                  ProductRepo().deleteProduct(item.id ?? 0);
+
+                  sm.showSnackBar(const SnackBar(
+                    content: Text('Product deleted'),
+                    backgroundColor: Colors.green,
+                  ));
+                } catch (e) {
+                  sm.showSnackBar(
+                    const SnackBar(
+                      content: Text('Error deleting product'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+            ),
             icon: Icon(
               Icons.delete,
               color: Theme.of(context).colorScheme.error,
@@ -185,5 +190,11 @@ class ProductListTile extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void goToForm(BuildContext context) {
+    Navigator.pushNamed(context, 'product_form', arguments: {
+      'product': item,
+    });
   }
 }
