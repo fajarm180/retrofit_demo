@@ -13,8 +13,8 @@ JSON serializeProduct(Product object) => object.toJson();
 @JsonSerializable()
 class Product {
   Product({
-    required this.id,
-    required this.label,
+    this.id,
+    this.label,
     this.description,
     this.category,
     this.price,
@@ -37,19 +37,20 @@ class Product {
     this.thumbnail,
   });
 
-  final int id;
+  @JsonKey(includeIfNull: false)
+  final int? id;
   @JsonKey(name: 'title')
-  final String? label;
-  final String? description;
+  String? label;
+  String? description;
   final String? category;
-  final double? price;
+  double? price;
   final double? discountPercentage;
   final double? rating;
   final int? stock;
   final List<String>? tags;
   final String? brand;
   final String? sku;
-  final int? weight;
+  int? weight;
   final Dimensions? dimensions;
   final String? warrantyInformation;
   final String? shippingInformation;
@@ -58,7 +59,7 @@ class Product {
   final String? returnPolicy;
   final int? minimumOrderQuantity;
   final Meta? meta;
-  final List<String>? images;
+  List<String>? images;
   final String? thumbnail;
 
   factory Product.fromJson(JSON json) => _$ProductFromJson(json);

@@ -11,9 +11,9 @@ class Dimensions {
     required this.depth,
   });
 
-  final double? width;
-  final double? height;
-  final double? depth;
+  double? width;
+  double? height;
+  double? depth;
 
   factory Dimensions.fromJson(JSON json) => _$DimensionsFromJson(json);
 

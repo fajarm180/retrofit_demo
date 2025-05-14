@@ -33,7 +33,7 @@ class ProductRepo {
       _service.createProduct(product: product);
 
   FutureOr<void> updateProduct(Product product) async =>
-      _service.updateProduct(id: product.id, product: product);
+      _service.updateProduct(id: product.id ?? 0, product: product);
 
   FutureOr<void> deleteProduct(int id) async => _service.deleteProduct(id: id);
 }
