@@ -11,10 +11,7 @@ XItem<T> _$XItemFromJson<T>(
   T Function(Object? json) fromJsonT,
 ) =>
     XItem<T>(
-      items: (_itemMapper(json, 'items') as List<dynamic>?)
-              ?.map(fromJsonT)
-              .toList() ??
-          [],
+      items: (json['items'] as List<dynamic>?)?.map(fromJsonT).toList() ?? [],
       total: (json['total'] as num?)?.toInt() ?? 0,
       skip: (json['skip'] as num?)?.toInt() ?? 0,
       limit: (json['limit'] as num?)?.toInt() ?? 10,

@@ -5,15 +5,6 @@ export 'item.c.dart';
 
 part 'item.g.dart';
 
-Object? _itemMapper(json, field) {
-  final keys = [
-    'products',
-  ];
-
-  final key = keys.firstWhere((e) => json.containsKey(e), orElse: () => '');
-  return key.isNotEmpty ? json[key] : [];
-}
-
 @JsonSerializable(
   createToJson: false,
   genericArgumentFactories: true,
@@ -26,7 +17,7 @@ class XItem<T> {
     this.limit = 10,
   });
 
-  @JsonKey(defaultValue: [], readValue: _itemMapper)
+  @JsonKey(defaultValue: [])
   final List<T> items;
   final int total;
   final int skip;
