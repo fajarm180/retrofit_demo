@@ -130,7 +130,7 @@ class _ApiService implements ApiService {
       Options(method: 'POST', headers: _headers, extra: _extra)
           .compose(
             _dio.options,
-            '/products',
+            '/products/add',
             queryParameters: queryParameters,
             data: _data,
           )

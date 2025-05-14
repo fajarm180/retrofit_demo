@@ -6,6 +6,7 @@ import 'package:retrofit_demo/data/dto/base/item.dart';
 import 'package:retrofit_demo/data/dto/product.dart';
 import 'package:retrofit_demo/data/network/constants.dart';
 import 'package:retrofit_demo/data/network/provider/auth_provider.dart';
+import 'package:retrofit_demo/data/network/provider/res_item_interceptor.dart';
 
 part 'api.g.dart';
 
@@ -19,6 +20,7 @@ abstract class ApiService {
 
     d.interceptors.addAll([
       AuthorizeProvider(),
+      ResItemInterceptor(),
     ]);
 
     if (kDebugMode) {
@@ -53,7 +55,7 @@ abstract class ApiService {
     @Path('id') required int id,
   });
 
-  @POST('/products')
+  @POST('/products/add')
   Future<Product> createProduct({
     @Body() required Product product,
   });
