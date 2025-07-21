@@ -37,7 +37,7 @@ class Product {
     this.thumbnail,
   });
 
-  @JsonKey(includeIfNull: false)
+  @JsonKey(includeToJson: false)
   final int? id;
   @JsonKey(name: 'title')
   String? label;

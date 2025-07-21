@@ -39,7 +39,6 @@ Product _$ProductFromJson(Map<String, dynamic> json) => Product(
     );
 
 Map<String, dynamic> _$ProductToJson(Product instance) => <String, dynamic>{
-      if (instance.id case final value?) 'id': value,
       'title': instance.label,
       'description': instance.description,
       'category': instance.category,
