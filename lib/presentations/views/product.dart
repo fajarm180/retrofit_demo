@@ -37,7 +37,6 @@ class ProductListView extends StatefulWidget {
 }
 
 class _ProductListViewState extends State<ProductListView> {
-  final refreshController = RefreshController(initialRefresh: true);
   final sc = TextEditingController();
   List<Product> items = [];
   final length = 10;
@@ -57,8 +56,8 @@ class _ProductListViewState extends State<ProductListView> {
         ),
         Expanded(
           child: XListView(
-            refreshController: refreshController,
-            onRefresh: () {
+            initialRefresh: true,
+            onRefresh: () async {
               sc.clear();
               onRefresh();
             },
@@ -83,14 +82,12 @@ class _ProductListViewState extends State<ProductListView> {
         items = result;
         page = 1;
       });
-
-      refreshController.refreshCompleted();
     } catch (e) {
-      refreshController.refreshFailed();
+      rethrow;
     }
   }
 
-  void onLoading() async {
+  Future<LoadStatus> onLoading() async {
     try {
       final result = await ProductRepo().getProducts(
         query: sc.text,
@@ -103,12 +100,12 @@ class _ProductListViewState extends State<ProductListView> {
       });
 
       if (result.isEmpty) {
-        refreshController.loadNoData();
+        return LoadStatus.noMore;
       } else {
-        refreshController.loadComplete();
+        return LoadStatus.idle;
       }
     } catch (e) {
-      refreshController.loadFailed();
+      return LoadStatus.failed;
     }
   }
 }
