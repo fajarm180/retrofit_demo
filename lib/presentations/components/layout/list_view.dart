@@ -17,6 +17,7 @@ class XListView extends StatefulWidget {
     this.onEmptyDisplay,
     this.padding,
     this.scrollDirection,
+    this.reverse = false,
   });
 
   final FutureOr<void> Function()? onRefresh;
@@ -30,6 +31,7 @@ class XListView extends StatefulWidget {
   final EdgeInsetsGeometry? padding;
   final Axis? scrollDirection;
   final bool initialRefresh;
+  final bool reverse;
 
   @override
   State<XListView> createState() => _XListViewState();
@@ -74,6 +76,7 @@ class _XListViewState extends State<XListView> {
   Widget build(BuildContext context) {
     return SmartRefresher(
       controller: rc,
+      reverse: widget.reverse,
       enablePullUp: widget.itemsCount != 0,
       scrollDirection: widget.scrollDirection,
       onRefresh: _onRefresh,
