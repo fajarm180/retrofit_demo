@@ -42,6 +42,10 @@ dependencies:
   pull_to_refresh: ^2.0.0
   gap: ^3.0.1
   form_builder_validators: ^11.1.2
+  dropdown_search: ^6.0.2
+  syncfusion_flutter_datepicker: ^29.1.38
+  skeletonizer: ^1.4.3
+  calendar_date_picker2: ^2.0.1
 
 dev_dependencies:
   flutter_test:
