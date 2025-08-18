@@ -18,6 +18,7 @@ class XListView extends StatefulWidget {
     this.padding,
     this.scrollDirection,
     this.reverse = false,
+    this.keyboardDismissBehavior = ScrollViewKeyboardDismissBehavior.onDrag,
   });
 
   final FutureOr<void> Function()? onRefresh;
@@ -32,6 +33,7 @@ class XListView extends StatefulWidget {
   final Axis? scrollDirection;
   final bool initialRefresh;
   final bool reverse;
+  final ScrollViewKeyboardDismissBehavior keyboardDismissBehavior;
 
   @override
   State<XListView> createState() => _XListViewState();
@@ -98,11 +100,13 @@ class _XListViewState extends State<XListView> {
                   padding: widget.padding ?? EdgeInsets.zero,
                   itemCount: widget.itemsCount,
                   itemBuilder: widget.itemBuilder,
+                  keyboardDismissBehavior: widget.keyboardDismissBehavior,
                 )
               : ListView.builder(
                   padding: widget.padding ?? EdgeInsets.zero,
                   itemCount: widget.itemsCount,
                   itemBuilder: widget.itemBuilder,
+                  keyboardDismissBehavior: widget.keyboardDismissBehavior,
                 ),
     );
   }
