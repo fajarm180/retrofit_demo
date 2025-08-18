@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
@@ -41,10 +42,12 @@ class XListView extends StatefulWidget {
 
 class _XListViewState extends State<XListView> {
   late RefreshController rc;
+  bool _isInitialLoading = false; // Temp solution
 
   @override
   void initState() {
     rc = RefreshController(initialRefresh: widget.initialRefresh);
+    _isInitialLoading = widget.initialRefresh;
     super.initState();
   }
 
@@ -56,6 +59,14 @@ class _XListViewState extends State<XListView> {
       rc.refreshFailed();
     } finally {
       rc.resetNoData();
+
+      // Temp solution
+      Future.delayed(
+        Duration(seconds: 2),
+        () => (_isInitialLoading)
+            ? setState(() => _isInitialLoading = false)
+            : null,
+      );
     }
   }
 
@@ -87,13 +98,16 @@ class _XListViewState extends State<XListView> {
         backgroundColor: Theme.of(context).colorScheme.primary,
       ),
       child: (widget.itemsCount == 0)
-          ? Container(
-              alignment: Alignment.center,
-              margin: const EdgeInsets.only(bottom: kBottomNavigationBarHeight),
-              child: SingleChildScrollView(
-                child: widget.onEmptyDisplay ?? Container(),
-              ),
-            )
+          ? (_isInitialLoading)
+              ? const Center(child: CircularProgressIndicator())
+              : Container(
+                  alignment: Alignment.center,
+                  margin:
+                      const EdgeInsets.only(bottom: kBottomNavigationBarHeight),
+                  child: SingleChildScrollView(
+                    child: widget.onEmptyDisplay ?? Container(),
+                  ),
+                )
           : (widget.itemSeparator != null)
               ? ListView.separated(
                   separatorBuilder: widget.itemSeparator!,
