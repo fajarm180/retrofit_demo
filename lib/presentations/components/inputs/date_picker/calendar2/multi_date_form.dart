@@ -17,7 +17,7 @@ class CMultiDateForm extends FormField<List<DateTime?>?> {
     this.required = false,
     DateTime? firstDate,
     DateTime? lastDate,
-    String Function(DateTime? v)? dateFormat,
+    String Function(List<DateTime?> v)? displayFormat,
     bool Function(DateTime? v)? selectableDayPredicate,
   }) : super(builder: (state) {
           void onChangedHandler(List<DateTime?>? value) {
@@ -46,11 +46,16 @@ class CMultiDateForm extends FormField<List<DateTime?>?> {
           String? formatDate(List<DateTime?>? value) {
             if (value == null) return null;
 
-            final f = dateFormat ?? (DateTime? v) => v.toString().split(' ')[0];
-
             value.whereType<DateTime>().toList().sort((a, b) => a.compareTo(b));
 
-            return value.map(f).toList().join(', \n');
+            if (displayFormat != null) {
+              return displayFormat(value);
+            }
+
+            return value
+                .map((DateTime? v) => v.toString().split(' ')[0])
+                .toList()
+                .join(', \n');
           }
 
           return TextFormField(

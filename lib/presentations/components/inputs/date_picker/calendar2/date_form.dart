@@ -17,7 +17,7 @@ class CDateForm extends FormField<DateTime?> {
     this.required = false,
     DateTime? firstDate,
     DateTime? lastDate,
-    String Function(DateTime? v)? dateFormat,
+    String Function(DateTime? v)? displayFormat,
     bool Function(DateTime? v)? selectableDayPredicate,
   }) : super(builder: (state) {
           void onChangedHandler(DateTime? value) {
@@ -46,8 +46,8 @@ class CDateForm extends FormField<DateTime?> {
           return TextFormField(
             key: ValueKey(state.value ?? state.errorText),
             initialValue: (state.value != null)
-                ? (dateFormat != null)
-                    ? dateFormat(state.value)
+                ? (displayFormat != null)
+                    ? displayFormat(state.value)
                     : state.value.toString().split(' ')[0]
                 : null,
             autovalidateMode: autovalidateMode,

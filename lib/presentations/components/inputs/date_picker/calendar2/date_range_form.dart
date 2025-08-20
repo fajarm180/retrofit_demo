@@ -1,7 +1,7 @@
 import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 import 'package:flutter/material.dart';
 
-class CDateRangeForm extends FormField<List<DateTime?>?> {
+class CDateRangeForm extends FormField<DateTimeRange?> {
   CDateRangeForm({
     super.key,
     super.onSaved,
@@ -13,14 +13,14 @@ class CDateRangeForm extends FormField<List<DateTime?>?> {
     String? hintText,
     this.requiredErrorText,
     VoidCallback? onClear,
-    ValueChanged<List<DateTime?>?>? onChanged,
+    ValueChanged<DateTimeRange?>? onChanged,
     this.required = false,
     DateTime? firstDate,
     DateTime? lastDate,
-    String Function(List<DateTime?>? v)? dateFormat,
+    String Function(DateTimeRange? v)? dateFormat,
     bool Function(DateTime? v)? selectableDayPredicate,
   }) : super(builder: (state) {
-          void onChangedHandler(List<DateTime?>? value) {
+          void onChangedHandler(DateTimeRange? value) {
             state.didChange(value);
             onChanged?.call(value);
           }
@@ -36,21 +36,28 @@ class CDateRangeForm extends FormField<List<DateTime?>?> {
                 selectableDayPredicate: selectableDayPredicate,
               ),
               dialogSize: const Size(325, 400),
-              value: state.value ?? [],
+              value: state.value != null
+                  ? [state.value!.start, state.value!.end]
+                  : [],
               borderRadius: BorderRadius.circular(15),
             );
 
-            if (result != null) onChangedHandler(result);
+            if (result != null) {
+              onChangedHandler(DateTimeRange(
+                start: result.first!,
+                end: result.last!,
+              ));
+            }
           }
 
-          String? formatDate(List<DateTime?>? value) {
+          String? formatDate(DateTimeRange? value) {
             if (value == null) return null;
 
             if (dateFormat != null) {
               return dateFormat(value);
             }
 
-            return '${value.first.toString().split(' ')[0]} - ${value.last.toString().split(' ')[0]}';
+            return '${value.start.toString().split(' ')[0]} - ${value.end.toString().split(' ')[0]}';
           }
 
           return TextFormField(
@@ -88,7 +95,7 @@ class CDateRangeForm extends FormField<List<DateTime?>?> {
   final bool required;
 
   @override
-  FormFieldValidator<List<DateTime?>?>? get validator => (value) {
+  FormFieldValidator<DateTimeRange?>? get validator => (value) {
         if (required && (value == null)) {
           return requiredErrorText ?? 'This field cannot be empty';
         }
