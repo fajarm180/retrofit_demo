@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:gap/gap.dart';
@@ -22,6 +24,7 @@ class ProductFormPage extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(12.0),
         child: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
           child: ProductForm(product: product),
         ),
       ),
@@ -39,6 +42,7 @@ class ProductForm extends StatelessWidget {
     final formKey = GlobalKey<FormState>();
     final sm = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
+    final isShowDetailForm = ValueNotifier<bool>(false);
 
     return Form(
       key: formKey,
@@ -71,44 +75,87 @@ class ProductForm extends StatelessWidget {
             onSaved: (v) => product.description = v,
             maxLine: 5,
           ),
-          XNumberForm(
-            initialValue: '${product.weight ?? ''}',
-            label: 'Weight',
-            onSaved: (v) => product.weight =
-                (v ?? '').isNotEmpty ? int.tryParse(v ?? '0') : null,
+          Row(
+            children: [
+              Text(
+                'Show detail form',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Gap(8),
+              ValueListenableBuilder(
+                valueListenable: isShowDetailForm,
+                builder: (ctx, show, child) {
+                  return Switch(
+                    value: show,
+                    onChanged: (v) => isShowDetailForm.value = v,
+                  );
+                },
+              )
+            ],
           ),
-          XNumberForm(
-            initialValue: '${product.dimensions?.width ?? ''}',
-            label: 'Width',
-            onSaved: (v) => product.dimensions?.width =
-                (v ?? '').isNotEmpty ? double.tryParse(v ?? '0.0') : null,
-          ),
-          XNumberForm(
-            initialValue: '${product.dimensions?.depth ?? ''}',
-            label: 'Length',
-            onSaved: (v) => product.dimensions?.depth =
-                (v ?? '').isNotEmpty ? double.tryParse(v ?? '0.0') : null,
-          ),
-          XNumberForm(
-            initialValue: '${product.dimensions?.height ?? ''}',
-            label: 'Height',
-            onSaved: (v) => product.dimensions?.height =
-                (v ?? '').isNotEmpty ? double.tryParse(v ?? '0.0') : null,
-          ),
-          XTextForm(
-            initialValue: product.images?.last,
-            label: 'Image URL',
-            maxLine: 3,
-            onSaved: (v) => (v ?? '').isNotEmpty ? product.images = [v!] : null,
+          const Gap(16),
+          ValueListenableBuilder(
+            valueListenable: isShowDetailForm,
+            builder: (ctx, show, child) {
+              return (show)
+                  ? Column(
+                      children: [
+                        XNumberForm(
+                          initialValue: '${product.weight ?? ''}',
+                          label: 'Weight',
+                          onSaved: (v) => product.weight = (v ?? '').isNotEmpty
+                              ? int.tryParse(v ?? '0')
+                              : null,
+                        ),
+                        XNumberForm(
+                          initialValue: '${product.dimensions?.width ?? ''}',
+                          label: 'Width',
+                          onSaved: (v) => product.dimensions?.width =
+                              (v ?? '').isNotEmpty
+                                  ? double.tryParse(v ?? '0.0')
+                                  : null,
+                        ),
+                        XNumberForm(
+                          initialValue: '${product.dimensions?.depth ?? ''}',
+                          label: 'Length',
+                          onSaved: (v) => product.dimensions?.depth =
+                              (v ?? '').isNotEmpty
+                                  ? double.tryParse(v ?? '0.0')
+                                  : null,
+                        ),
+                        XNumberForm(
+                          initialValue: '${product.dimensions?.height ?? ''}',
+                          label: 'Height',
+                          onSaved: (v) => product.dimensions?.height =
+                              (v ?? '').isNotEmpty
+                                  ? double.tryParse(v ?? '0.0')
+                                  : null,
+                        ),
+                        XTextForm(
+                          initialValue: product.images?.last,
+                          label: 'Image URL',
+                          maxLine: 3,
+                          onSaved: (v) => (v ?? '').isNotEmpty
+                              ? product.images = [v!]
+                              : null,
+                        ),
+                      ],
+                    )
+                  : Container();
+            },
           ),
           const Gap(16),
           SizedBox(
             width: double.infinity,
-            child: ElevatedButton(
+            child: FilledButton(
               onPressed: () async {
                 if (!(formKey.currentState?.validate() ?? false)) return;
 
+                log('Before Save: ${product.toJson()}');
+
                 formKey.currentState?.save();
+
+                log('After Save: ${product.toJson()}');
 
                 final repo = ProductRepo();
                 try {
@@ -120,6 +167,7 @@ class ProductForm extends StatelessWidget {
                 } catch (e) {
                   sm.showSnackBar(
                     const SnackBar(
+                      behavior: SnackBarBehavior.floating,
                       content: Text('Error creating product'),
                       backgroundColor: Colors.red,
                     ),
@@ -129,6 +177,7 @@ class ProductForm extends StatelessWidget {
               child: const Text('Save'),
             ),
           ),
+          const Gap(kBottomNavigationBarHeight)
         ],
       ),
     );

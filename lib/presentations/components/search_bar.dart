@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
-class XSearchBar extends StatelessWidget {
+class XSearchBar extends StatefulWidget {
   final String? label;
   final String? hintText;
   final TextEditingController? controller;
   final Function(String v)? onSearch;
   final Function(String v)? onChanged;
+  final VoidCallback? onClear;
   final String? placeholder;
   final Widget? suffixIcon;
 
@@ -15,6 +16,7 @@ class XSearchBar extends StatelessWidget {
     this.controller,
     this.onSearch,
     this.onChanged,
+    this.onClear,
     this.placeholder,
     this.label,
     this.hintText,
@@ -22,8 +24,19 @@ class XSearchBar extends StatelessWidget {
   });
 
   @override
+  State<XSearchBar> createState() => _XSearchBarState();
+}
+
+class _XSearchBarState extends State<XSearchBar> {
+  @override
+  void didChangeDependencies() {
+    widget.controller?.clear();
+    super.didChangeDependencies();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final tec = controller ?? TextEditingController();
+    final tec = widget.controller ?? TextEditingController();
 
     return Column(
       children: [
@@ -34,19 +47,30 @@ class XSearchBar extends StatelessWidget {
             if (v.isEmpty) return;
             FocusManager.instance.primaryFocus?.unfocus();
 
-            if (onSearch != null) onSearch!(v);
+            if (widget.onSearch != null) widget.onSearch!(v);
           },
-          onChanged: onChanged,
+          onChanged: widget.onChanged,
           decoration: InputDecoration(
-            label: Text(label ?? 'Search'),
-            suffixIcon: suffixIcon ??
-                IconButton(
-                  color: Theme.of(context).colorScheme.inversePrimary,
-                  onPressed:
-                      (onSearch != null) ? () => onSearch!(tec.text) : null,
-                  icon: const Icon(Icons.search),
-                ),
-            hintText: (placeholder ?? ''),
+            label: Text(widget.label ?? 'Search'),
+            suffixIcon: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (tec.text.isNotEmpty)
+                  InkWell(
+                    onTap: widget.onClear ?? didChangeDependencies,
+                    child: const Icon(Icons.clear),
+                  ),
+                widget.suffixIcon ??
+                    IconButton(
+                      color: Theme.of(context).colorScheme.inversePrimary,
+                      onPressed: (widget.onSearch != null)
+                          ? () => widget.onSearch!(tec.text)
+                          : null,
+                      icon: const Icon(Icons.search),
+                    ),
+              ],
+            ),
+            hintText: (widget.placeholder ?? ''),
           ),
           style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
         ),

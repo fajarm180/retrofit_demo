@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:retrofit_demo/presentations/views/date_widget_demo/calendart_page.dart';
+import 'package:retrofit_demo/presentations/views/date_widget_demo/material_page.dart';
+import 'package:retrofit_demo/presentations/views/date_widget_demo/sync_func_page.dart';
 import 'package:retrofit_demo/presentations/views/form.dart';
 import 'package:retrofit_demo/presentations/views/product.dart';
 import 'package:retrofit_demo/shared/constants.dart';
@@ -20,13 +23,19 @@ class MyApp extends StatelessWidget {
         inputDecorationTheme: _inputDecorationTheme(),
       ),
       home: ProductsPage(),
-
+      builder: (context, child) => SafeArea(
+        top: false,
+        child: child ?? Container(),
+      ),
       routes: {
         'product': (context) => const ProductsPage(),
         'product_form': (context) {
           final args = ModalRoute.of(context)?.settings.arguments as JSON?;
           return ProductFormPage(product: args?['product']);
         },
+        'calendar_date_widget': (context) => const CalendarDatePage(),
+        'material_date_widget': (context) => const MatDateWidgetPage(),
+        'sync_func_date_widget': (context) => const SFDateWidgetPage(),
       },
       // home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );

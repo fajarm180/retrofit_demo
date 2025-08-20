@@ -3,6 +3,7 @@ import 'package:gap/gap.dart';
 import 'package:retrofit_demo/data/dto/product.dart';
 import 'package:retrofit_demo/data/repository/product.dart';
 import 'package:retrofit_demo/presentations/components/dialogs/delete_dialog.dart';
+import 'package:retrofit_demo/presentations/components/layout/base_layout.dart';
 import 'package:retrofit_demo/presentations/components/layout/list_view.dart';
 import 'package:retrofit_demo/presentations/components/search_bar.dart';
 
@@ -11,19 +12,13 @@ class ProductsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: const Text('List Product'),
-        ),
-        body: ProductListView(),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () => Navigator.pushNamed(context, 'product_form'),
-          tooltip: 'Add Product',
-          child: const Icon(Icons.add),
-        ),
+    return XBaseLayout(
+      pageTitle: 'List Product',
+      body: ProductListView(),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Navigator.pushNamed(context, 'product_form'),
+        tooltip: 'Add Product',
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -52,6 +47,12 @@ class _ProductListViewState extends State<ProductListView> {
           child: XSearchBar(
             controller: sc,
             onSearch: (v) => onRefresh(),
+            onChanged: (v) => v.length < 3 ? null : onRefresh(),
+            onClear: () {
+              sc.clear();
+              FocusManager.instance.primaryFocus?.unfocus();
+              onRefresh();
+            },
           ),
         ),
         Expanded(
@@ -59,10 +60,12 @@ class _ProductListViewState extends State<ProductListView> {
             initialRefresh: true,
             onRefresh: () async {
               sc.clear();
+              FocusManager.instance.primaryFocus?.unfocus();
               onRefresh();
             },
             onLoading: onLoading,
             itemsCount: items.length,
+            onEmptyDisplay: Text('Kosong'),
             itemBuilder: (context, i) => Padding(
               padding: const EdgeInsets.all(8.0),
               child: ProductListTile(item: items[i]),
