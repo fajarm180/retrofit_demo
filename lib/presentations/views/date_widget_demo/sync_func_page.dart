@@ -3,6 +3,7 @@ import 'package:gap/gap.dart';
 import 'package:retrofit_demo/presentations/components/inputs/date_picker/syncfusion/date_form.dart';
 import 'package:retrofit_demo/presentations/components/inputs/date_picker/syncfusion/date_range_form.dart';
 import 'package:retrofit_demo/presentations/components/inputs/date_picker/syncfusion/multi_date_form.dart';
+import 'package:retrofit_demo/presentations/components/inputs/date_picker/syncfusion/multi_date_range_form.dart';
 import 'package:retrofit_demo/presentations/components/layout/base_layout.dart';
 
 class SFDateWidgetPage extends StatelessWidget {
@@ -28,6 +29,9 @@ class SFDateWidgetPage extends StatelessWidget {
             const Gap(16),
             Text('Multi Date Input'),
             SfMultiDateForm(required: true),
+            const Gap(16),
+            Text('Multi Date Range Input'),
+            SfMultiDateRangeForm(required: true),
             const Gap(16),
           ],
         ),

@@ -40,7 +40,7 @@ class SfMultiDateForm extends FormField<List<DateTime>?> {
                       onCancel: () => Navigator.pop(c),
                       minDate: firstDate,
                       maxDate: lastDate,
-                      selectableDayPredicate: selectableDayPredicate.call,
+                      selectableDayPredicate: selectableDayPredicate?.call,
                     ),
                   ),
                 );
@@ -58,7 +58,7 @@ class SfMultiDateForm extends FormField<List<DateTime>?> {
             final f =
                 displayFormat ?? (DateTime? v) => v.toString().split(' ')[0];
 
-            return value.map(f).toList().join(', \n');
+            return value.map(f).join(', \n');
           }
 
           return TextFormField(

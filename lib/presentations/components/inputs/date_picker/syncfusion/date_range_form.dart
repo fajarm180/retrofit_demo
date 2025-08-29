@@ -17,8 +17,8 @@ class SfDateRangeForm extends FormField<DateTimeRange?> {
     this.required = false,
     DateTime? firstDate,
     DateTime? lastDate,
-    String Function(DateTimeRange? v)? dateFormat,
-    SelectableDayForRangePredicate? selectableDayPredicate,
+    String Function(DateTimeRange? v)? displayFormat,
+    SelectableDayPredicate? selectableDayPredicate,
   }) : super(builder: (state) {
           void onChangedHandler(DateTimeRange? value) {
             state.didChange(value);
@@ -43,9 +43,7 @@ class SfDateRangeForm extends FormField<DateTimeRange?> {
                       onCancel: () => Navigator.pop(c),
                       minDate: firstDate,
                       maxDate: lastDate,
-                      selectableDayPredicate: (selectableDayPredicate != null)
-                          ? (d) => selectableDayPredicate(d, d, d)
-                          : null,
+                      selectableDayPredicate: selectableDayPredicate?.call,
                     ),
                   ),
                 );
@@ -63,8 +61,8 @@ class SfDateRangeForm extends FormField<DateTimeRange?> {
           String? formatDate(DateTimeRange? value) {
             if (value == null) return null;
 
-            if (dateFormat != null) {
-              return dateFormat(value);
+            if (displayFormat != null) {
+              return displayFormat(value);
             }
 
             return '${value.start.toString().split(' ')[0]} - ${value.end.toString().split(' ')[0]}';
