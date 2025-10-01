@@ -19,36 +19,52 @@ class SfDateRangeForm extends FormField<DateTimeRange?> {
     DateTime? lastDate,
     String Function(DateTimeRange? v)? displayFormat,
     SelectableDayPredicate? selectableDayPredicate,
+    bool useBottomSheet = false,
   }) : super(builder: (state) {
           void onChangedHandler(DateTimeRange? value) {
             state.didChange(value);
             onChanged?.call(value);
           }
 
-          void selectDate() async {
-            final result = await showDialog<PickerDateRange?>(
-              context: state.context,
-              builder: (c) {
-                return Dialog(
-                  child: SizedBox(
-                    height: MediaQuery.of(c).size.height / 3,
-                    child: SfDateRangePicker(
-                      initialSelectedRange: PickerDateRange(
-                        state.value?.start,
-                        state.value?.end,
-                      ),
-                      selectionMode: DateRangePickerSelectionMode.range,
-                      showActionButtons: true,
-                      onSubmit: (v) => Navigator.pop(c, v),
-                      onCancel: () => Navigator.pop(c),
-                      minDate: firstDate,
-                      maxDate: lastDate,
-                      selectableDayPredicate: selectableDayPredicate?.call,
-                    ),
+          Widget modalDateWidget(BuildContext c) {
+            final height = MediaQuery.of(c).size.height;
+            final color = Theme.of(state.context).colorScheme;
+            final bgColor = (useBottomSheet) ? color.surfaceContainerLow : null;
+
+            return Dialog(
+              child: SizedBox(
+                height: height / (useBottomSheet ? 1 : 3),
+                child: SfDateRangePicker(
+                  backgroundColor: bgColor,
+                  headerStyle: DateRangePickerHeaderStyle(
+                    backgroundColor: bgColor,
                   ),
-                );
-              },
+                  initialSelectedRange: PickerDateRange(
+                    state.value?.start,
+                    state.value?.end,
+                  ),
+                  selectionMode: DateRangePickerSelectionMode.range,
+                  showActionButtons: true,
+                  onSubmit: (v) => Navigator.pop(c, v),
+                  onCancel: () => Navigator.pop(c),
+                  minDate: firstDate,
+                  maxDate: lastDate,
+                  selectableDayPredicate: selectableDayPredicate?.call,
+                ),
+              ),
             );
+          }
+
+          void selectDate() async {
+            final result = await ((useBottomSheet)
+                ? showModalBottomSheet(
+                    context: state.context,
+                    builder: modalDateWidget,
+                  )
+                : showDialog<PickerDateRange?>(
+                    context: state.context,
+                    builder: modalDateWidget,
+                  ));
 
             if (result?.startDate != null) {
               onChangedHandler(DateTimeRange(
